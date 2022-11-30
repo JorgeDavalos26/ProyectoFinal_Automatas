@@ -1,9 +1,9 @@
 import javax.swing.*;
 
-public class Main {
-
-    public static void main(String[] args) {
-
+public class Main
+{
+    public static void main(String[] args)
+    {
         JFrame obj = new JFrame();
         obj.setTitle("Programa del Padrino");
         obj.setResizable(false);
@@ -15,8 +15,5 @@ public class Main {
         obj.pack();
         obj.setLocationRelativeTo(null);
         obj.setVisible(true);
-
     }
-
-
 }

@@ -2,8 +2,12 @@ import javax.swing.*;
 
 public class Automata
 {
-
     public State currentState, initialState;
+
+    public final static String numbers = "0123456789";
+    public final static String letters = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+    public final static String special = "+-*/%{}()|&=><_!.";
+    public final static String special2 = "@#$^~`[]\";:',?\\";
 
     public Automata()
     {
@@ -95,11 +99,6 @@ public class Automata
         qError.name = "qError";
         qError.isError = true;
         qError.tokenRepresenting = "Errors";
-
-
-        final String numbers = "0123456789";
-        final String letters = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
-        final String special = "+-*/%{}()|&=><_!.";
 
         q0.addLink("+-", q1);
         q0.addLink("*/%", q2);
@@ -201,6 +200,7 @@ public class Automata
         if(currentState.isTerminal)
         {
             Monitor.addOne(Monitor.currentEvaluatedToken);
+            if(!Monitor.currentEvaluatedToken.equals("")) Monitor.addOne("Ocurrencias");
             Monitor.currentEvaluatedToken = "";
             currentState = null;
         }
@@ -208,7 +208,8 @@ public class Automata
         {
             if(!Monitor.currentEvaluatedToken.equals(""))
             {
-                Monitor.addOne("Errors");
+                Monitor.addOne("Errores");
+                Monitor.addOne("Error-"+Monitor.currentEvaluatedToken);
                 Monitor.currentEvaluatedToken = "";
             }
             if(" \n\t".contains(String.valueOf(input)))
@@ -221,7 +222,6 @@ public class Automata
         {
             Monitor.currentEvaluatedToken = currentState.tokenRepresenting;
         }
-
     }
 
 }

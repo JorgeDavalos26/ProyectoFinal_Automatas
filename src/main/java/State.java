@@ -1,37 +1,29 @@
 import java.util.HashMap;
 import java.util.Map;
 
-public class State {
-
-    String name;
+public class State
+{
+    String name, tokenRepresenting;
     Map<String, State> links = new HashMap<String, State>();
-
-    boolean isTerminal;
-    boolean isError;
-
-    String tokenRepresenting;
-
+    boolean isTerminal, isError;
 
     public State()
     {
         isTerminal = false;
         isError = false;
+        tokenRepresenting = "";
+        name = "q?";
     }
 
     public State receives(char input)
     {
-        char ch = input;
-
         for (Map.Entry<String, State> state : links.entrySet())
-        {
             if(state.getKey().contains(String.valueOf(input)))
-            {
                 return state.getValue();
-            }
-        }
 
-        System.out.println("State which occurs the error: " + name);
-        System.out.println("The input that causes the crash: " + (ch == '\n' ? "LF" : (ch == '\t' ? "TAB" : (ch == ' ' ? "SPACE" : ch))));
+        char ch = input;
+        System.out.println("State: " + name);
+        System.out.println("The input that causes crashing: " + (ch == '\n' ? "LF" : (ch == '\t' ? "TAB" : (ch == ' ' ? "SPACE" : ch))));
         return null;
     }
 
@@ -39,6 +31,5 @@ public class State {
     {
         links.put(inputs, toState);
     }
-
 
 }

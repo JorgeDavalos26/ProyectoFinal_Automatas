@@ -25,10 +25,10 @@ public class UI extends JPanel implements ActionListener
     ArrayList<String> words;
     int indexCurrentWord;
     String contentOfFile;
-    final String keyWords[] = new String[]{"if", "else", "switch", "case", "default", "for", "while", "break", "int", "String", "double", "char"};
+    final String[] keyWords;
 
     // automata
-    Automata automata = new Automata();
+    Automata automata;
 
     public UI()
     {
@@ -84,12 +84,12 @@ public class UI extends JPanel implements ActionListener
         add(logsLabel);
 
         runAutomataSlowButton = new JButton("Correr autómata (lento)");
-        runAutomataSlowButton.addActionListener(e -> checkFile(false));
+        runAutomataSlowButton.addActionListener(e -> prepareAutomata(false));
         runAutomataSlowButton.setBounds(new Rectangle(470, 100, 240, 30));
         add(runAutomataSlowButton);
 
         runAutomataFastButton = new JButton("Correr autómata (rápido)");
-        runAutomataFastButton.addActionListener(e -> checkFile(true));
+        runAutomataFastButton.addActionListener(e -> prepareAutomata(true));
         runAutomataFastButton.setBounds(new Rectangle(470, 132, 240, 30));
         add(runAutomataFastButton);
 
@@ -120,18 +120,10 @@ public class UI extends JPanel implements ActionListener
                         {"Comentario","",""},
                         {"Paréntesis","",""},
                         {"Llave","",""},
+                        {"Totales","",""},
                 };
-
         String column[] = {"Tokens","Número de ocurrencias", "Número de errores"};
-
-        errorsTable = new JTable(data,column);
-        errorsTable.setEnabled(false);
-        for(int i=0; i<data.length; i++) errorsTable.setRowHeight(i, 30);
-        errorsTable.getTableHeader().setFont(new Font("sansserif", Font.PLAIN, 12));
-
-        errorsScrollPane = new JScrollPane(errorsTable);
-        errorsScrollPane.setBounds(new Rectangle(740, 100, 430, 353));
-        add(errorsScrollPane);
+        renderTable(column, data);
 
         JTextArea explanationTextArea = new JTextArea();
         explanationTextArea.setEditable(false);
@@ -140,20 +132,18 @@ public class UI extends JPanel implements ActionListener
                 + "   if, else, switch, case, default, for, while, break, int, String, double, char \n"
                 + " * Identificador: \n"
                 + "   Inicia con letra, sin espacios y caracteres especiales, excepto guión bajo \n"
-                + " * Operador racional:   (<, <=, >, >=, ==, !=) \n"
-                + " * Operador lógico:   (&&, ||, !) \n"
-                + " * Operador aritmético:   (+, -, *, /, %) \n"
-                + " * Asignación:   ( = ) \n"
-                + " * Número entero:   (989) \n"
-                + " * Número decimal:   (24.35) \n"
-                + " * Comentario:   ( Con el formato /* */) \n"
-                + " * Paréntesis:   ( (,) ) \n"
-                + " * Llave:   ( {, } ) \n";
+                + " * Operador racional ( <, <=, >, >=, ==, != ) \n"
+                + " * Operador lógico ( &&, ||, ! ) \n"
+                + " * Operador aritmético ( +, -, *, /, % ) \n"
+                + " * Asignación ( = ) \n"
+                + " * Número entero ( 989 )            * Número decimal ( 24.35 ) \n"
+                + " * Comentario ( Con el formato /* */) \n"
+                + " * Paréntesis ( (,) )          * Llave ( {, } ) \n";
 
         explanationTextArea.setText(explanationContent);
 
         JScrollPane explanationScrollPane = new JScrollPane(explanationTextArea);
-        explanationScrollPane.setBounds(new Rectangle(740, 460, 430, 252));
+        explanationScrollPane.setBounds(new Rectangle(740, 490, 430, 220));
         add(explanationScrollPane);
 
         // ---------------------------------------------------------------------------------------------
@@ -163,9 +153,25 @@ public class UI extends JPanel implements ActionListener
                 "Cargar archivo de texto", "txt");
         fileChooser.setFileFilter(filter);
 
+        automata = new Automata();
+        keyWords = new String[]{"if", "else", "switch", "case", "default", "for", "while", "break", "int", "String", "double", "char"};
+        contentOfFile = "";
+
         words = new ArrayList<>();
         indexCurrentWord = 0;
-        contentOfFile = "";
+    }
+
+    public void renderTable(String[] column, String[][] data)
+    {
+        errorsTable = new JTable(data,column);
+        errorsTable.setEnabled(false);
+        errorsTable.getTableHeader().setFont(new Font("sansserif", Font.PLAIN, 12));
+
+        for(int i=0; i<data.length; i++) errorsTable.setRowHeight(i, 30);
+
+        errorsScrollPane = new JScrollPane(errorsTable);
+        errorsScrollPane.setBounds(new Rectangle(740, 100, 430, 383));
+        add(errorsScrollPane);
     }
 
     public void selectFile()
@@ -191,7 +197,7 @@ public class UI extends JPanel implements ActionListener
         catch(Exception e){}
     }
 
-    public void checkFile(boolean fast)
+    public void prepareAutomata(boolean fast)
     {
         try
         {
@@ -207,11 +213,9 @@ public class UI extends JPanel implements ActionListener
         {
             runAutomataFastButton.setEnabled(false);
             runAutomataSlowButton.setEnabled(false);
-
             indexCurrentWord = 0;
             words.clear();
             logsTextArea.setText("");
-
             Monitor.clearTokens();
 
             logsTextArea.append("\n     ~ LEER ARCHIVO ~\n\n");
@@ -243,66 +247,58 @@ public class UI extends JPanel implements ActionListener
 
     public void runAutomata(boolean fast)
     {
-        if(fast) timer = new Timer(1, this);
-        else timer = new Timer(1500, this);
         logsTextArea.append("\n     ~ INICIAR AUTOMATA ~\n\n");
+
+        if(fast) timer = new Timer(1, this);
+        else timer = new Timer(100, this);
+
         timer.start();
     }
 
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        if(indexCurrentWord < words.size())
+        try
         {
-            String word = words.get(indexCurrentWord);
-            logsTextArea.append("-------------------------" + "\n");
-
-            if("abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ".contains(String.valueOf(word.charAt(0))))
+            if(indexCurrentWord < words.size())
             {
-                if(checkIfReservedWord(word))
+                String word = words.get(indexCurrentWord);
+                logsTextArea.append("---------------------------------------------" + "\n");
+
+                if(Automata.letters.contains(String.valueOf(word.charAt(0))))
                 {
-                    Monitor.addOne("Palabra reservada");
+                    if(checkIfReservedWord(word))
+                    {
+                        logsTextArea.append("Palabra reservada: " + word + "\n");
+                        Monitor.addOne("Palabra reservada");
+                    }
+                    else
+                    {
+                        checkWord(word);
+                    }
                 }
                 else
                 {
-                    giveInputToAutomata(word);
+                    checkWord(word);
                 }
+                indexCurrentWord++;
             }
             else
             {
-                giveInputToAutomata(word);
+                timer.stop();
+                runAutomataFastButton.setEnabled(true);
+                runAutomataSlowButton.setEnabled(true);
             }
-
-            indexCurrentWord++;
-        }
-        else
-        {
-            //Monitor.printTokens();
-            runAutomataFastButton.setEnabled(true);
-            runAutomataSlowButton.setEnabled(true);
-            timer.stop();
 
             String data[][] = Monitor.getTableInfo();
             String column[] = {"Tokens","Número de ocurrencias", "Número de errores"};
-
-            errorsTable = new JTable(data,column);
-            errorsTable.setEnabled(false);
-            for(int i=0; i<data.length; i++) errorsTable.setRowHeight(i, 30);
-            errorsTable.getTableHeader().setFont(new Font("sansserif", Font.PLAIN, 12));
-
-            errorsScrollPane = new JScrollPane(errorsTable);
-            errorsScrollPane.setBounds(new Rectangle(740, 100, 430, 353));
-            add(errorsScrollPane);
+            renderTable(column, data);
         }
-    }
-
-    public void giveInputToAutomata(String word)
-    {
-        char[] chars = word.toCharArray();
-        for (char ch : chars)
+        catch (Exception ex)
         {
-            logsTextArea.append("Caracter: " + (ch == '\n' ? "LF" : (ch == '\t' ? "TAB" : (ch == ' ' ? "SPACE" : ch))) + "\n");
-            inputToAutomata(ch);
+            timer.stop();
+            runAutomataFastButton.setEnabled(true);
+            runAutomataSlowButton.setEnabled(true);
         }
     }
 
@@ -310,13 +306,20 @@ public class UI extends JPanel implements ActionListener
     {
         // compare with keywords
         for(int i=0; i<keyWords.length; i++)
-        {
             if(keyWords[i].equals(word.substring(0, word.length()-1)))
-            {
                 return true;
-            }
-        }
         return false;
+    }
+
+    public void checkWord(String word)
+    {
+        // give char by char to automata
+        char[] chars = word.toCharArray();
+        for (char c : chars)
+        {
+            logsTextArea.append("Caracter: " + (c == '\n' ? "LF" : (c == '\t' ? "TAB" : (c == ' ' ? "SPACE" : c))) + "\n");
+            inputToAutomata(c);
+        }
     }
 
     public void inputToAutomata(char input)
