@@ -1,251 +1,227 @@
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 
-public class Automata extends JPanel implements ActionListener
+public class Automata
 {
 
-    Timer timer;
-    JFileChooser fileChooser;
-    JLabel filenameLabel;
-    JTextArea fileContentTextArea, logsTextArea;
-
-    ArrayList<String> words;
-    int indexCurrentWord;
-    String contentOfFile;
-    final String keyWords[] = new String[]{"if", "else", "switch", "case", "default", "for", "while", "break", "int", "String", "double", "char"};
+    public State currentState, initialState;
 
     public Automata()
     {
-        setPreferredSize(new Dimension(1200, 800));
-        setLayout(null);
+        State q0 = new State();
+        q0.isTerminal = true;
+        q0.name = "q0";
 
-        // ---------------------------------------------------------------------------------------------
+        State q1 = new State();
+        q1.name = "q1";
+        q1.tokenRepresenting = "Operador aritmético";
 
-        JLabel titleLabel = new JLabel("Autómatas");
-        titleLabel.setBounds(new Rectangle(40, 10, 300, 40));
-        titleLabel.setFont(new Font("Serif", Font.PLAIN, 24));
-        add(titleLabel);
+        State q2 = new State();
+        q2.name = "q2";
+        q2.tokenRepresenting = "Operador aritmético";
 
-        JLabel optionsLabel = new JLabel("Opciones");
-        optionsLabel.setBounds(new Rectangle(40, 60, 300, 40));
-        optionsLabel.setFont(new Font("Serif", Font.PLAIN, 18));
-        add(optionsLabel);
+        State q3 = new State();
+        q3.name = "q3";
+        q3.tokenRepresenting = "Llave";
 
-        JLabel devLabel = new JLabel("Desarrolladores: Sarahí Salazar 20110332 - Jorge Dávalos 20110354");
-        devLabel.setBounds(new Rectangle(780, 760, 600, 40));
-        devLabel.setFont(new Font("Serif", Font.PLAIN, 14));
-        add(devLabel);
+        State q4 = new State();
+        q4.name = "q4";
+        q4.tokenRepresenting = "Parentesis";
 
-        // ---------------------------------------------------------------------------------------------
+        State q5 = new State();
+        q5.name = "q5";
+        q5.tokenRepresenting = "Número Entero";
 
-        JButton fileButton = new JButton("Subir archivo");
-        fileButton.addActionListener(e -> selectFile());
-        fileButton.setBounds(new Rectangle(40, 100, 400, 30));
-        add(fileButton);
+        State q6 = new State();
+        q6.name = "q6";
+        q6.tokenRepresenting = "Número decimal";
 
-        JLabel fileContentLabel = new JLabel("Contenido");
-        fileContentLabel.setBounds(new Rectangle(40, 130, 300, 40));
-        fileContentLabel.setFont(new Font("Serif", Font.PLAIN, 18));
-        add(fileContentLabel);
+        State q7 = new State();
+        q7.name = "q7";
+        q7.tokenRepresenting = "Número decimal";
 
-        fileContentTextArea = new JTextArea();
-        fileContentTextArea.setBounds(new Rectangle(40, 170, 400, 540));
-        JScrollPane fileContentScrollPane = new JScrollPane(fileContentTextArea);
-        fileContentScrollPane.setBounds(new Rectangle(40, 170, 400, 540));
-        add(fileContentScrollPane);
+        State q8 = new State();
+        q8.name = "q8";
+        q8.tokenRepresenting = "Operador lógico";
 
-        filenameLabel = new JLabel("nombre_de_archivo.txt");
-        filenameLabel.setBounds(new Rectangle(40, 700, 300, 40));
-        filenameLabel.setFont(new Font("Serif", Font.ITALIC, 14));
-        add(filenameLabel);
+        State q9 = new State();
+        q9.name = "q9";
+        q9.tokenRepresenting = "Operador lógico";
 
-        // ---------------------------------------------------------------------------------------------
+        State q10 = new State();
+        q10.name = "q10";
+        q10.tokenRepresenting = "Operador lógico";
 
-        JLabel logsLabel = new JLabel("Logs");
-        logsLabel.setBounds(new Rectangle(470, 130, 340, 40));
-        logsLabel.setFont(new Font("Serif", Font.PLAIN, 18));
-        add(logsLabel);
+        State q11 = new State();
+        q11.name = "q11";
+        q11.tokenRepresenting = "Operador lógico";
 
-        JButton checkFileButton = new JButton("Verificar archivo");
-        checkFileButton.addActionListener(e -> checkFile());
-        checkFileButton.setBounds(new Rectangle(470, 100, 240, 30));
-        add(checkFileButton);
+        State q12 = new State();
+        q12.name = "q12";
+        q12.tokenRepresenting = "Asignación";
 
-        logsTextArea = new JTextArea();
-        logsTextArea.setBounds(new Rectangle(0,0, 180, 440));
-        JScrollPane logsScrollPane = new JScrollPane(logsTextArea);
-        logsScrollPane.setBounds(new Rectangle(470, 170, 240, 540));
-        add(logsScrollPane);
+        State q13 = new State();
+        q13.name = "q13";
+        q13.tokenRepresenting = "Operador relacional";
 
-        // ---------------------------------------------------------------------------------------------
+        State q14 = new State();
+        q14.name = "q14";
+        q14.tokenRepresenting = "Operador relacional";
 
-        JLabel errorsLabel = new JLabel("Errores");
-        errorsLabel.setBounds(new Rectangle(740, 60, 300, 40));
-        errorsLabel.setFont(new Font("Serif", Font.PLAIN, 18));
-        add(errorsLabel);
+        State q15 = new State();
+        q15.name = "q15";
+        q15.tokenRepresenting = "Operador lógico";
 
-        String data[][] =
-                {
-                        {"Palabras reservadas","",""},
-                        {"Identificador","",""},
-                        {"Operador racional","",""},
-                        {"Operador lógico","",""},
-                        {"Operador aritmético","",""},
-                        {"Asignación","",""},
-                        {"Número entero","",""},
-                        {"Número decimal","",""},
-                        {"Comentario","",""},
-                        {"Paréntesis","",""},
-                        {"Llave","",""},
-                };
+        State q16 = new State();
+        q16.name = "q16";
+        q16.tokenRepresenting = "Identificador";
 
-        String column[] = {"Tokens","Número de ocurrencias", "Número de errores"};
+        State q17 = new State();
+        q17.name = "q17";
+        q17.tokenRepresenting = "Identificador";
 
-        JTable errorsTable = new JTable(data,column);
-        for(int i=0; i<data.length; i++) errorsTable.setRowHeight(i, 30);
-        errorsTable.getTableHeader().setFont(new Font("sansserif", Font.PLAIN, 12));
+        State q18 = new State();
+        q18.name = "q18";
+        q18.tokenRepresenting = "Comentario";
 
-        JScrollPane errorsScrollPane = new JScrollPane(errorsTable);
-        errorsScrollPane.setBounds(new Rectangle(740, 100, 430, 353));
-        add(errorsScrollPane);
+        State q19 = new State();
+        q19.name = "q19";
+        q19.tokenRepresenting = "Comentario";
 
-        JTextArea explanationTextArea = new JTextArea();
-        String explanationContent = "Palabras reservadas:   (if, else, switch, case, default, for, while, break, int, String, double, char) \n"
-                + "Identificador:   (Inicia con letra, sin espacios en blanco, sin caracteres especiales, excepto el guión bajo) \n"
-                + "Operador racional:   (<, <=, >, >=, ==, !=) \n"
-                + "Operador lógico:   (&&, ||, !) \n"
-                + "Operador aritmético:   (+, -, *, /, %) \n"
-                + "Asignación:   ( = ) \n"
-                + "Número entero \n"
-                + "Número decimal \n"
-                + "Comentario:   ( Con el formato /* */) \n"
-                + "Paréntesis:   ( (,) ) \n"
-                + "Llave:   ( {, } ) \n";
+        State q20 = new State();
+        q20.name = "q20";
+        q20.tokenRepresenting = "Comentario";
 
-        explanationTextArea.setText(explanationContent);
+        State qError = new State();
+        qError.name = "qError";
+        qError.isError = true;
+        qError.tokenRepresenting = "Errors";
 
-        JScrollPane explanationScrollPane = new JScrollPane(explanationTextArea);
-        explanationScrollPane.setBounds(new Rectangle(740, 460, 430, 250));
-        add(explanationScrollPane);
 
-        // ---------------------------------------------------------------------------------------------
+        final String numbers = "0123456789";
+        final String letters = "abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+        final String special = "+-*/%{}()|&=><_!.";
 
-        fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "Cargar archivo de texto", "txt");
-        fileChooser.setFileFilter(filter);
+        q0.addLink("+-", q1);
+        q0.addLink("*/%", q2);
+        q0.addLink("{}", q3);
+        q0.addLink("()", q4);
+        q0.addLink(numbers, q5);
+        q0.addLink(letters, q17);
+        q0.addLink("|", q8);
+        q0.addLink("&", q10);
+        q0.addLink("=", q12);
+        q0.addLink("><", q13);
+        q0.addLink("_", q16);
+        q0.addLink("!", q15);
+        q0.addLink(" \n\t", q0);
 
-        timer = new Timer(1000, this);
+        q1.addLink(numbers, q5);
+        q1.addLink(" \n\t", q0);
+        q1.addLink(letters + special, qError);
 
-        words = new ArrayList<>();
-        indexCurrentWord = 0;
-        contentOfFile = "";
+        q2.addLink("*", q20);
+        q2.addLink(" \n\t", q0);
+        q2.addLink(letters + numbers + "+-/%{}()|&=><_!.", qError);
+
+        q3.addLink(" \n\t", q0);
+        q3.addLink(letters + numbers + special, qError);
+
+        q4.addLink(" \n\t", q0);
+        q4.addLink(letters + numbers + special, qError);
+
+        q5.addLink(numbers, q5);
+        q5.addLink(".", q6);
+        q5.addLink(" \n\t", q0);
+        q5.addLink(letters + "+-*/%{}()|&=><_!", qError);
+
+        q6.addLink(numbers, q7);
+        q6.addLink(letters + special, qError);
+
+        q7.addLink(numbers, q7);
+        q7.addLink(" \n\t", q0);
+        q7.addLink(letters + special, qError);
+
+        q8.addLink("|", q9);
+        q8.addLink(letters + numbers + "+-*/%{}()&=><_!.", qError);
+
+        q9.addLink(" \n\t", q0);
+        q9.addLink(letters + numbers + "+-*/%{}()&=><_!.", qError);
+
+        q10.addLink("&", q11);
+        q10.addLink(letters + numbers + "+-*/%{}()|=><_!.", qError);
+
+        q11.addLink(" \n\t", q0);
+        q11.addLink(letters + numbers + "+-*/%{}()|=><_!.", qError);
+
+        q12.addLink(" \n\t", q0);
+        q12.addLink(letters + numbers + special, qError);
+
+        q13.addLink("=", q14);
+        q13.addLink(" \n\t", q0);
+        q13.addLink(letters + numbers + "+-*/%{}()|&><_!.", qError);
+
+        q14.addLink(" \n\t", q0);
+        q14.addLink(letters + numbers + special, qError);
+
+        q15.addLink("=", q14);
+        q15.addLink(" \n\t", q0);
+        q15.addLink(letters + numbers + "+-*/%{}()|&><_!.", qError);
+
+        q16.addLink(letters + numbers, q17);
+        q16.addLink(" " + special, qError);
+
+        q17.addLink(letters + numbers + "_", q17);
+        q17.addLink(" \n\t", q0);
+        q17.addLink("+-*/%{}()|&=><!.", qError);
+
+        q18.addLink(" \n\t", q0);
+        q18.addLink(letters + numbers + special, qError);
+
+        q19.addLink("/", q18);
+        q19.addLink(letters + numbers + "+-*%{}()|&=><_!.", q20);
+        q19.addLink(" \n\t", qError);
+
+        q20.addLink("*", q19);
+        q20.addLink(letters + numbers + special, q20);
+        q20.addLink(" \n\t", qError);
+
+        qError.addLink(letters + numbers + special, qError);
+        qError.addLink(" \n\t", q0);
+
+        currentState = null;
+        initialState = q0;
     }
 
-    public void selectFile()
+    public void consume(char input, JTextArea logs)
     {
-        try
+        if(currentState == null) currentState = initialState; // q0
+
+        currentState = currentState.receives(input);
+
+        if(currentState.isTerminal)
         {
-            int result = fileChooser.showOpenDialog(this);
-            if (result != JFileChooser.CANCEL_OPTION)
+            Monitor.addOne(Monitor.currentEvaluatedToken);
+            Monitor.currentEvaluatedToken = "";
+            currentState = null;
+        }
+        else if(currentState.isError)
+        {
+            if(!Monitor.currentEvaluatedToken.equals(""))
             {
-                File fileName = fileChooser.getSelectedFile();
-                if ((fileName == null) || (fileName.getName().equals("")))
-                {
-                    filenameLabel.setText("???");
-                }
-                else
-                {
-                    filenameLabel.setText(fileName.getAbsolutePath());
-                    contentOfFile = Files.readString(Path.of(fileName.getAbsolutePath()));
-                    fileContentTextArea.setText(contentOfFile);
-                }
+                Monitor.addOne("Errors");
+                Monitor.currentEvaluatedToken = "";
             }
-        }
-        catch(Exception e)
-        {
-        }
-    }
-
-    public void checkFile()
-    {
-        recolectWords();
-        runAutomata();
-    }
-
-    public void recolectWords()
-    {
-        if(!contentOfFile.isEmpty())
-        {
-            words.clear();
-            logsTextArea.setText("");
-
-            StringBuilder word = new StringBuilder();
-
-            for(int i=0; i<contentOfFile.length(); i++)
+            if(" \n\t".contains(String.valueOf(input)))
             {
-                if(contentOfFile.charAt(i) != '\r')
-                {
-                    word.append(contentOfFile.charAt(i));
-                    if(contentOfFile.charAt(i) == ' ' || contentOfFile.charAt(i) == '\n' || contentOfFile.charAt(i) == '\t')
-                    {
-                        logsTextArea.append("Word caught: " + word.substring(0, word.length()-1) + "\n");
-                        words.add(word.toString());
-                        word = new StringBuilder();
-                    }
-                }
+                Monitor.currentEvaluatedToken = "";
+                currentState = null;
             }
         }
         else
         {
-            JOptionPane.showMessageDialog(this,
-                    "No se ha seleccionado un archivo de texto el cual verificar",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            Monitor.currentEvaluatedToken = currentState.tokenRepresenting;
         }
-    }
 
-    public void runAutomata()
-    {
-        timer.start();
-
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-        String word = words.get(indexCurrentWord);
-        logsTextArea.append("Analyzing: " + word.substring(0, word.length()-1) + "\n");
-
-        checkIfReservedWord(word);
-
-        char[] chars = word.toCharArray();
-        for (char ch : chars)
-        {
-            logsTextArea.append("   char: " + (ch == '\n' ? "LF" : (ch == '\t' ? "TAB" : (ch == ' ' ? "SPACE" : ch))) + "\n");
-
-            inputToAutomata(ch);
-
-        }
-        indexCurrentWord++;
-
-    }
-
-    public void checkIfReservedWord(String word)
-    {
-        // compare with keywords
-    }
-
-    public void inputToAutomata(char input)
-    {
-        // automata
     }
 
 }

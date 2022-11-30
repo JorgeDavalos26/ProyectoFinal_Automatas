@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 
 public class Main {
 
@@ -10,7 +9,7 @@ public class Main {
         obj.setResizable(false);
         obj.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        Automata automata = new Automata();
+        UI automata = new UI();
         obj.add(automata);
 
         obj.pack();
